@@ -33,7 +33,7 @@ const HorizontalCarousel: React.FC = () => {
   if (items.length === 0) {
     return null; // Don't show carousel if no items
   }
-  console.log(items);
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -75,7 +75,6 @@ const HorizontalCarousel: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 200,
     marginVertical: 20,
   },
   scrollContent: {

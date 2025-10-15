@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Animated,
+  Platform,
 } from 'react-native';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,11 +30,15 @@ const StoriesSlider: React.FC = () => {
 
   const slides = convertHeroSliderToSlides(data?.blockHomeHeroSlider || null);
   const currentSlide = slides[currentIndex];
-  
-  const player = useVideoPlayer(currentSlide?.mediaUrl || '', player => {
-    player.loop = true;
-    player.muted = true;
-    player.play();
+
+  // Create video player only if current slide has video
+  const videoUrl = currentSlide?.mediaType?.includes('video') ? currentSlide.mediaUrl : '';
+  const player = useVideoPlayer(videoUrl, player => {
+    if (videoUrl) {
+      player.loop = true;
+      player.muted = true;
+      player.play();
+    }
   });
 
   const resetProgress = () => {
@@ -43,10 +48,15 @@ const StoriesSlider: React.FC = () => {
 
   const startProgress = (duration: number) => {
     resetProgress();
+    
+    // Ensure animation starts fresh
+    progressAnim.setValue(0);
+    
     Animated.timing(progressAnim, {
       toValue: 1,
       duration: duration,
       useNativeDriver: false,
+      isInteraction: false,
     }).start(({ finished }) => {
       if (finished) {
         goToNext();
@@ -69,14 +79,17 @@ const StoriesSlider: React.FC = () => {
   };
 
   useEffect(() => {
-    if (currentSlide) {
+    if (currentSlide && slides.length > 0) {
+      // Stop any existing animation
+      progressAnim.stopAnimation();
+      // Start new progress animation
       startProgress(currentSlide.duration);
     }
-    
+
     return () => {
       progressAnim.stopAnimation();
     };
-  }, [currentIndex, currentSlide]);
+  }, [currentIndex]);
 
   useEffect(() => {
     const listener = progressAnim.addListener(({ value }) => {
@@ -86,29 +99,12 @@ const StoriesSlider: React.FC = () => {
     return () => {
       progressAnim.removeListener(listener);
     };
-  }, []);
+  }, [progressAnim]);
 
   if (!currentSlide || slides.length === 0) return null;
 
   return (
     <View style={styles.container}>
-      {/* Progress bars */}
-      <View style={styles.progressContainer}>
-        {slides.map((_, index) => (
-          <View key={index} style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                {
-                  width: index < currentIndex ? '100%' : 
-                         index === currentIndex ? `${progress * 100}%` : '0%'
-                }
-              ]}
-            />
-          </View>
-        ))}
-      </View>
-
       {/* Background Video or Image */}
       {currentSlide.mediaType.includes('video') ? (
         <VideoView
@@ -118,7 +114,7 @@ const StoriesSlider: React.FC = () => {
           nativeControls={false}
         />
       ) : (
-        <Image 
+        <Image
           source={{ uri: currentSlide.mediaUrl }}
           style={styles.backgroundVideo}
           resizeMode="cover"
@@ -132,13 +128,13 @@ const StoriesSlider: React.FC = () => {
 
       {/* Content */}
       <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.8)']}
+        colors={['transparent', 'rgba(0,0,0,0.9)']}
         style={styles.contentGradient}
       >
         <View style={styles.content}>
           {/* Eyebrow image or text */}
           {currentSlide.eyebrowImage ? (
-            <Image 
+            <Image
               source={{ uri: currentSlide.eyebrowImage.url }}
               style={styles.eyebrowImage}
               resizeMode="contain"
@@ -146,14 +142,14 @@ const StoriesSlider: React.FC = () => {
           ) : currentSlide.eyebrowText ? (
             <Text style={styles.eyebrowText}>{currentSlide.eyebrowText}</Text>
           ) : null}
-          
+
           {/* Title */}
           <Text style={styles.title}>{currentSlide.title}</Text>
         </View>
       </LinearGradient>
 
       {/* Navigation */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.nextButton}
         onPress={goToNext}
       >
@@ -161,16 +157,33 @@ const StoriesSlider: React.FC = () => {
       </TouchableOpacity>
 
       {/* Touch areas for navigation */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.leftTouchArea}
         onPress={goToPrevious}
         activeOpacity={1}
       />
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.rightTouchArea}
         onPress={goToNext}
         activeOpacity={1}
       />
+
+      {/* Progress bars at bottom */}
+      <View style={styles.progressContainer}>
+        {slides.map((_, index) => (
+          <View key={index} style={styles.progressBarContainer}>
+            <View
+              style={[
+                styles.progressBar,
+                {
+                  width: index < currentIndex ? '100%' :
+                    index === currentIndex ? `${progress * 100}%` : '0%'
+                }
+              ]}
+            />
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
@@ -178,30 +191,36 @@ const StoriesSlider: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     height: SLIDER_HEIGHT,
-    width: screenWidth,
+    width: '100%',
     position: 'relative',
     overflow: 'hidden',
   },
   progressContainer: {
     position: 'absolute',
-    top: 50,
+    bottom: 30,
     left: 20,
     right: 20,
     flexDirection: 'row',
     zIndex: 10,
-    gap: 4,
+    gap: 8,
   },
   progressBarContainer: {
     flex: 1,
-    height: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    height: 4,
+    borderRadius: 2,
     overflow: 'hidden',
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 2,
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
   },
   backgroundVideo: {
     ...StyleSheet.absoluteFillObject,
@@ -215,13 +234,13 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   content: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 25,
+    paddingBottom: 70,
   },
   eyebrowImage: {
-    width: 80,
-    height: 40,
-    marginBottom: 20,
+    width: 120,
+    height: 50,
+    marginBottom: 25,
   },
   eyebrowText: {
     color: '#fff',
@@ -232,30 +251,35 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   title: {
-    color: '#fff',
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 38,
+    color: '#FFFFFF',
+    fontFamily: 'Nimbus-Sans-Black',
+    fontSize: 60,
+    fontWeight: '900',
+    letterSpacing: 1.44,
+    lineHeight: 60,
+    textTransform: 'uppercase',
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    textShadowRadius: 4,
   },
   nextButton: {
     position: 'absolute',
-    right: 20,
+    right: 15,
     top: '50%',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
+    marginTop: -30,
   },
   nextButtonText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
+    marginLeft: 2,
   },
   leftTouchArea: {
     position: 'absolute',

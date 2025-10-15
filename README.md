@@ -78,6 +78,8 @@ pmg-sancrisoft-app/
 │   └── types/               # TypeScript type definitions
 │       └── navigation.ts
 ├── assets/                  # Images, fonts, and static files
+│   ├── fonts/              # Custom fonts (create this folder)
+│   └── *.png               # App icons
 ├── app.config.js           # Expo configuration (dynamic)
 ├── App.tsx                 # Root component
 ├── index.ts                # Entry point
@@ -85,6 +87,27 @@ pmg-sancrisoft-app/
 ├── package.json            # Dependencies and scripts
 └── README.md              # This file
 ```
+
+## 🎨 Custom Fonts
+
+**✅ Nimbus Sans is configured and loaded!**
+
+The app includes the following Nimbus Sans font families:
+- `Nimbus-Sans` (Regular)
+- `Nimbus-Sans-Bold` (Bold)
+- `Nimbus-Sans-Black` (Heavy/Black weight - used in hero titles)
+- `Nimbus-Sans-Italic`
+- `Nimbus-Sans-Bold-Italic`
+- `Nimbus-Sans-UltraLight`
+
+**Usage example:**
+```typescript
+<Text style={{ fontFamily: 'Nimbus-Sans-Black', fontSize: 48 }}>
+  Bold Headline
+</Text>
+```
+
+See `FONTS.md` for complete font documentation and usage guide.
 
 ## 🔧 Configuration
 
