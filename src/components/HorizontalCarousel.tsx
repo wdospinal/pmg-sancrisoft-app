@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Dimensions,
   Linking,
 } from 'react-native';
@@ -15,51 +14,54 @@ import { GET_ANNOUNCEMENTS, Announcement } from '../services/queries';
 const { width: screenWidth } = Dimensions.get('window');
 const CARD_WIDTH = screenWidth * 0.8;
 const CARD_SPACING = 20;
+const SKELETON_CARDS = [0, 1, 2];
 
 const HorizontalCarousel: React.FC = () => {
   const { data, loading, error } = useQuery<{ announcementCollection: { items: Announcement[] } }>(GET_ANNOUNCEMENTS);
 
-  const handleItemPress = (url: string) => {
+  const handleItemPress = useCallback((url: string) => {
     if (url) {
       const fullUrl = url.startsWith('http') ? url : `https://www.pmg.com${url}`;
       Linking.openURL(fullUrl).catch(err => 
         console.error('Failed to open URL:', err)
       );
     }
-  };
+  }, []);
 
-  const items = data?.announcementCollection?.items || [];
+  const items = useMemo(() => data?.announcementCollection?.items || [], [data?.announcementCollection?.items]);
 
-  // Loading skeleton
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          scrollEnabled={false}
-        >
-          {[0, 1, 2].map((index) => (
-            <View
-              key={index}
-              style={[
-                styles.card,
-                styles.skeletonCard,
-                { marginLeft: index === 0 ? CARD_SPACING : 0 }
-              ]}
-            >
-              <View style={styles.skeletonContent}>
-                <View style={styles.skeletonIntro} />
-                <View style={styles.skeletonMessage} />
-                <View style={styles.skeletonMessageShort} />
-                <View style={styles.skeletonButton} />
-              </View>
+  // Memoized loading skeleton
+  const renderSkeleton = useMemo(() => (
+    <View style={styles.container}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        scrollEnabled={false}
+      >
+        {SKELETON_CARDS.map((index) => (
+          <View
+            key={`skeleton-${index}`}
+            style={[
+              styles.card,
+              styles.skeletonCard,
+              { marginLeft: index === 0 ? CARD_SPACING : 0 }
+            ]}
+          >
+            <View style={styles.skeletonContent}>
+              <View style={styles.skeletonIntro} />
+              <View style={styles.skeletonMessage} />
+              <View style={styles.skeletonMessageShort} />
+              <View style={styles.skeletonButton} />
             </View>
-          ))}
-        </ScrollView>
-      </View>
-    );
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  ), []);
+
+  if (loading) {
+    return renderSkeleton;
   }
 
   if (error || items.length === 0) {

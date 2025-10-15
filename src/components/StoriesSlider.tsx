@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,11 @@ import {
   TouchableOpacity,
   Image,
   Animated,
-  Platform,
 } from 'react-native';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client/react';
-import { GET_HERO_SLIDER, StoriesSlide, convertHeroSliderToSlides, HeroSliderData } from '../services/queries';
+import { GET_HERO_SLIDER, convertHeroSliderToSlides, HeroSliderData } from '../services/queries';
 import { heroSliderClient } from '../services/apollo';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -27,8 +26,13 @@ const StoriesSlider: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const progressAnim = useRef(new Animated.Value(0)).current;
 
-  const slides = convertHeroSliderToSlides(data?.blockHomeHeroSlider || null);
-  const currentSlide = slides[currentIndex];
+  // Memoize slides conversion
+  const slides = useMemo(() => 
+    convertHeroSliderToSlides(data?.blockHomeHeroSlider || null),
+    [data?.blockHomeHeroSlider]
+  );
+
+  const currentSlide = useMemo(() => slides[currentIndex], [slides, currentIndex]);
 
   // Create video player only if current slide has video
   const videoUrl = currentSlide?.mediaType?.includes('video') ? currentSlide.mediaUrl : '';
@@ -40,15 +44,18 @@ const StoriesSlider: React.FC = () => {
     }
   });
 
-  const resetProgress = () => {
+  const resetProgress = useCallback(() => {
     progressAnim.setValue(0);
     setProgress(0);
-  };
+  }, [progressAnim]);
 
-  const startProgress = (duration: number) => {
+  const goToNext = useCallback(() => {
+    const nextIndex = (currentIndex + 1) % slides.length;
+    setCurrentIndex(nextIndex);
+  }, [currentIndex, slides.length]);
+
+  const startProgress = useCallback((duration: number) => {
     resetProgress();
-    
-    // Ensure animation starts fresh
     progressAnim.setValue(0);
     
     Animated.timing(progressAnim, {
@@ -61,17 +68,12 @@ const StoriesSlider: React.FC = () => {
         goToNext();
       }
     });
-  };
+  }, [progressAnim, resetProgress, goToNext]);
 
-  const goToNext = () => {
-    const nextIndex = (currentIndex + 1) % slides.length;
-    setCurrentIndex(nextIndex);
-  };
-
-  const goToPrevious = () => {
+  const goToPrevious = useCallback(() => {
     const prevIndex = currentIndex === 0 ? slides.length - 1 : currentIndex - 1;
     setCurrentIndex(prevIndex);
-  };
+  }, [currentIndex, slides.length]);
 
   // Start progress animation on mount and slide changes
   useEffect(() => {
