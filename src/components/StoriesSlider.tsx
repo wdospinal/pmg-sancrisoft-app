@@ -73,18 +73,19 @@ const StoriesSlider: React.FC = () => {
     setCurrentIndex(prevIndex);
   };
 
+  // Start progress animation on mount and slide changes
   useEffect(() => {
     if (currentSlide && slides.length > 0) {
       // Stop any existing animation
       progressAnim.stopAnimation();
-      // Start new progress animation
+      // Start new progress animation for current slide
       startProgress(currentSlide.duration);
     }
 
     return () => {
       progressAnim.stopAnimation();
     };
-  }, [currentIndex]);
+  }, [currentIndex, slides.length]);
 
   useEffect(() => {
     const listener = progressAnim.addListener(({ value }) => {
