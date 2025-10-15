@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path } from 'react-native-svg';
 import { useQuery } from '@apollo/client/react';
 import { GET_HERO_SLIDER, convertHeroSliderToSlides, HeroSliderData } from '../services/queries';
 import { heroSliderClient } from '../services/apollo';
@@ -177,7 +178,9 @@ const StoriesSlider: React.FC = () => {
         style={styles.nextButton}
         onPress={goToNext}
       >
-        <Text style={styles.nextButtonText}>›</Text>
+        <Svg width="26" height="42" viewBox="0 0 26 42" fill="none">
+          <Path d="M3 3L21 21L3 39" stroke="#FFFFFF" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+        </Svg>
       </TouchableOpacity>
 
       {/* Touch areas for navigation */}
@@ -293,17 +296,10 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
     marginTop: -30,
-  },
-  nextButtonText: {
-    color: '#fff',
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginLeft: 2,
   },
   leftTouchArea: {
     position: 'absolute',
