@@ -26,7 +26,6 @@ const StoriesSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const slides = convertHeroSliderToSlides(data?.blockHomeHeroSlider || null);
   const currentSlide = slides[currentIndex];
@@ -74,10 +73,6 @@ const StoriesSlider: React.FC = () => {
     setCurrentIndex(prevIndex);
   };
 
-  const jumpToSlide = (index: number) => {
-    setCurrentIndex(index);
-  };
-
   useEffect(() => {
     if (currentSlide && slides.length > 0) {
       // Stop any existing animation
@@ -101,7 +96,33 @@ const StoriesSlider: React.FC = () => {
     };
   }, [progressAnim]);
 
-  if (!currentSlide || slides.length === 0) return null;
+  // Loading skeleton
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.skeletonBackground}>
+          {/* Animated gradient shimmer effect */}
+          <View style={styles.skeletonShimmer} />
+        </View>
+        
+        {/* Progress bars skeleton */}
+        <View style={styles.progressContainer}>
+          {[0, 1, 2, 3, 4].map((index) => (
+            <View key={index} style={styles.skeletonProgressBar} />
+          ))}
+        </View>
+
+        {/* Content skeleton */}
+        <View style={styles.skeletonContent}>
+          <View style={styles.skeletonLogo} />
+          <View style={styles.skeletonTitle} />
+          <View style={styles.skeletonTitleShort} />
+        </View>
+      </View>
+    );
+  }
+
+  if (error || !currentSlide || slides.length === 0) return null;
 
   return (
     <View style={styles.container}>
@@ -296,6 +317,47 @@ const styles = StyleSheet.create({
     width: '30%',
     height: '100%',
     zIndex: 5,
+  },
+  // Skeleton styles
+  skeletonBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#1a1a1a',
+  },
+  skeletonShimmer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  skeletonContent: {
+    position: 'absolute',
+    bottom: 70,
+    left: 25,
+    right: 25,
+  },
+  skeletonLogo: {
+    width: 100,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 4,
+    marginBottom: 25,
+  },
+  skeletonTitle: {
+    width: '100%',
+    height: 48,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 4,
+    marginBottom: 12,
+  },
+  skeletonTitleShort: {
+    width: '70%',
+    height: 48,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 4,
+  },
+  skeletonProgressBar: {
+    flex: 1,
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 2,
   },
 });
 

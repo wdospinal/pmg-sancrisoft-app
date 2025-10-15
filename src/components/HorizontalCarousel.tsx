@@ -30,8 +30,40 @@ const HorizontalCarousel: React.FC = () => {
 
   const items = data?.announcementCollection?.items || [];
 
-  if (items.length === 0) {
-    return null; // Don't show carousel if no items
+  // Loading skeleton
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          scrollEnabled={false}
+        >
+          {[0, 1, 2].map((index) => (
+            <View
+              key={index}
+              style={[
+                styles.card,
+                styles.skeletonCard,
+                { marginLeft: index === 0 ? CARD_SPACING : 0 }
+              ]}
+            >
+              <View style={styles.skeletonContent}>
+                <View style={styles.skeletonIntro} />
+                <View style={styles.skeletonMessage} />
+                <View style={styles.skeletonMessageShort} />
+                <View style={styles.skeletonButton} />
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  }
+
+  if (error || items.length === 0) {
+    return null; // Don't show carousel if error or no items
   }
 
   return (
@@ -125,6 +157,40 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  // Skeleton styles
+  skeletonCard: {
+    backgroundColor: '#1a1a1a',
+  },
+  skeletonContent: {
+    padding: 20,
+  },
+  skeletonIntro: {
+    width: '50%',
+    height: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 4,
+    marginBottom: 12,
+  },
+  skeletonMessage: {
+    width: '100%',
+    height: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  skeletonMessageShort: {
+    width: '80%',
+    height: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 4,
+    marginBottom: 16,
+  },
+  skeletonButton: {
+    width: 100,
+    height: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 6,
   },
 });
 
