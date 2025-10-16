@@ -14,13 +14,14 @@ import Svg, { Path } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@apollo/client/react';
-import { GET_HERO_SLIDER, convertHeroSliderToSlides, HeroSliderData } from '../services/queries';
+import { GET_HERO_SLIDER, convertHeroSliderToSlides } from '../services/queries';
+import type { HeroSliderData } from '../types';
 import { heroSliderClient } from '../services/apollo';
-import { RootStackParamList } from '../types/navigation';
+import { RootStackParamList } from '../types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { height: screenHeight } = Dimensions.get('window');
 const SLIDER_HEIGHT = screenHeight * 0.6;
 
 const StoriesSlider: React.FC = () => {

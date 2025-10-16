@@ -9,7 +9,8 @@ import {
   Linking,
 } from 'react-native';
 import { useQuery } from '@apollo/client/react';
-import { GET_ANNOUNCEMENTS, Announcement } from '../services/queries';
+import { GET_ANNOUNCEMENTS } from '../services/queries';
+import type { Announcement } from '../types';
 
 const { width: screenWidth } = Dimensions.get('window');
 const CARD_WIDTH = screenWidth * 0.8;

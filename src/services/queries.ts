@@ -1,4 +1,7 @@
 import { gql } from '@apollo/client';
+import type { HeroSliderData, StoriesSlide } from '../types';
+
+// GraphQL Queries
 
 export const GET_ANNOUNCEMENTS = gql`
   query GetAnnouncements {
@@ -77,68 +80,43 @@ export const GET_HERO_SLIDER = gql`
   }
 `;
 
-// Types for the GraphQL responses
-export interface Announcement {
-  backgroundColor: string;
-  ctaLabel: string;
-  ctaUrl: string;
-  intro: string;
-  message: string;
+// Constants
+
+const MAX_SLIDES = 6; // Maximum number of slides supported in hero slider
+const DEFAULT_SLIDE_DURATION = 5000; // Default duration for each slide in milliseconds
+
+// Helper Functions
+
+/**
+ * Dynamically detects the maximum number of slides available in the data
+ * @param data - The hero slider data from GraphQL
+ * @returns The number of slides that have a title
+ */
+function detectMaxSlides(data: HeroSliderData): number {
+  let maxSlides = 0;
+  
+  for (let i = 1; i <= MAX_SLIDES; i++) {
+    const titleKey = `slide${i}Title` as keyof HeroSliderData;
+    if (data[titleKey]) {
+      maxSlides = i;
+    }
+  }
+  
+  return maxSlides;
 }
 
-export interface HeroSliderData {
-  slide1Title: string;
-  slide1EyebrowImage?: { url: string; contentType: string };
-  slide1EyebrowText?: string;
-  slide1TargetUrl?: string;
-  slide1MobileImageOrVideo?: { url: string; contentType: string };
-  slide1EnableDarkBackdrop?: boolean;
-  slide2Title: string;
-  slide2EyebrowImage?: { url: string };
-  slide2EyebrowText?: string;
-  slide2TargetUrl?: string;
-  slide2MobileImageOrVideo?: { url: string; contentType: string };
-  slide2EnableDarkBackdrop?: boolean;
-  slide3Title: string;
-  slide3EyebrowImage?: { url: string };
-  slide3EyebrowText?: string;
-  slide3TargetUrl?: string;
-  slide3MobileImageOrVideo?: { url: string; contentType: string };
-  slide3EnableDarkBackdrop?: boolean;
-  slide4Title: string;
-  slide4EyebrowImage?: { url: string };
-  slide4EyebrowText?: string;
-  slide4TargetLink?: string;
-  slide4MobileImageOrVideo?: { url: string; contentType: string };
-  slide4EnableDarkBackdrop?: boolean;
-  slide5Title: string;
-  slide5EyebrowImage?: { url: string };
-  slide5EyebrowText?: string;
-  slide5TargetUrl?: string;
-  slide5MobileImageOrVideo?: { url: string; contentType: string };
-  slide5EnableDarkBackdrop?: boolean;
-}
-
-export interface StoriesSlide {
-  id: string;
-  title: string;
-  subtitle?: string;
-  eyebrowImage?: { url: string };
-  eyebrowText?: string;
-  targetUrl?: string;
-  mediaUrl: string;
-  mediaType: string;
-  enableDarkBackdrop: boolean;
-  duration: number;
-}
-
-// Helper function to convert HeroSliderData to StoriesSlide array
+/**
+ * Converts HeroSliderData from Contentful to StoriesSlide array
+ * @param data - The hero slider data from GraphQL
+ * @returns Array of formatted slides
+ */
 export function convertHeroSliderToSlides(data: HeroSliderData | null): StoriesSlide[] {
   if (!data) return [];
   
   const slides: StoriesSlide[] = [];
+  const maxSlides = detectMaxSlides(data);
   
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= maxSlides; i++) {
     const titleKey = `slide${i}Title` as keyof HeroSliderData;
     const title = data[titleKey];
     
@@ -151,7 +129,6 @@ export function convertHeroSliderToSlides(data: HeroSliderData | null): StoriesS
       
       const media = data[mediaKey] as { url: string; contentType: string } | undefined;
       const eyebrowImage = data[eyebrowImageKey] as { url: string } | undefined;
-      
       const eyebrowTextValue = data[eyebrowTextKey] as string | undefined;
       
       slides.push({
@@ -164,7 +141,7 @@ export function convertHeroSliderToSlides(data: HeroSliderData | null): StoriesS
         mediaUrl: media?.url || '',
         mediaType: media?.contentType || '',
         enableDarkBackdrop: (data[backdropKey] as boolean) || false,
-        duration: 5000, // Default duration
+        duration: DEFAULT_SLIDE_DURATION,
       });
     }
   }
