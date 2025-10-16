@@ -122,6 +122,7 @@ export interface HeroSliderData {
 export interface StoriesSlide {
   id: string;
   title: string;
+  subtitle?: string;
   eyebrowImage?: { url: string };
   eyebrowText?: string;
   targetUrl?: string;
@@ -151,11 +152,14 @@ export function convertHeroSliderToSlides(data: HeroSliderData | null): StoriesS
       const media = data[mediaKey] as { url: string; contentType: string } | undefined;
       const eyebrowImage = data[eyebrowImageKey] as { url: string } | undefined;
       
+      const eyebrowTextValue = data[eyebrowTextKey] as string | undefined;
+      
       slides.push({
         id: `slide${i}`,
         title: title as string,
+        subtitle: eyebrowTextValue ? `Celebrating all the ways ${eyebrowTextValue.toLowerCase()}` : undefined,
         eyebrowImage: eyebrowImage,
-        eyebrowText: data[eyebrowTextKey] as string | undefined,
+        eyebrowText: eyebrowTextValue,
         targetUrl: data[targetUrlKey] as string | undefined,
         mediaUrl: media?.url || '',
         mediaType: media?.contentType || '',

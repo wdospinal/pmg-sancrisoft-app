@@ -11,14 +11,20 @@ import {
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@apollo/client/react';
 import { GET_HERO_SLIDER, convertHeroSliderToSlides, HeroSliderData } from '../services/queries';
 import { heroSliderClient } from '../services/apollo';
+import { RootStackParamList } from '../types/navigation';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const SLIDER_HEIGHT = screenHeight * 0.6;
 
 const StoriesSlider: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
   const { data, loading, error } = useQuery<{ blockHomeHeroSlider: HeroSliderData }>(
     GET_HERO_SLIDER,
     { client: heroSliderClient }
@@ -75,6 +81,20 @@ const StoriesSlider: React.FC = () => {
     const prevIndex = currentIndex === 0 ? slides.length - 1 : currentIndex - 1;
     setCurrentIndex(prevIndex);
   }, [currentIndex, slides.length]);
+
+  const handleStoryPress = useCallback(() => {
+    if (currentSlide) {
+      navigation.navigate('Product', {
+        title: currentSlide.title,
+        subtitle: currentSlide.subtitle,
+        eyebrowText: currentSlide.eyebrowText,
+        eyebrowImage: currentSlide.eyebrowImage,
+        mediaUrl: currentSlide.mediaUrl,
+        mediaType: currentSlide.mediaType,
+        targetUrl: currentSlide.targetUrl,
+      });
+    }
+  }, [currentSlide, navigation]);
 
   // Start progress animation on mount and slide changes
   useEffect(() => {
@@ -151,27 +171,33 @@ const StoriesSlider: React.FC = () => {
         <View style={styles.darkOverlay} />
       )}
 
-      {/* Content */}
-      <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.9)']}
-        style={styles.contentGradient}
+      {/* Content - Tappable area */}
+      <TouchableOpacity 
+        style={styles.contentTouchArea}
+        onPress={handleStoryPress}
+        activeOpacity={1}
       >
-        <View style={styles.content}>
-          {/* Eyebrow image or text */}
-          {currentSlide.eyebrowImage ? (
-            <Image
-              source={{ uri: currentSlide.eyebrowImage.url }}
-              style={styles.eyebrowImage}
-              resizeMode="contain"
-            />
-          ) : currentSlide.eyebrowText ? (
-            <Text style={styles.eyebrowText}>{currentSlide.eyebrowText}</Text>
-          ) : null}
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.9)']}
+          style={styles.contentGradient}
+        >
+          <View style={styles.content}>
+            {/* Eyebrow image or text */}
+            {currentSlide.eyebrowImage ? (
+              <Image
+                source={{ uri: currentSlide.eyebrowImage.url }}
+                style={styles.eyebrowImage}
+                resizeMode="contain"
+              />
+            ) : currentSlide.eyebrowText ? (
+              <Text style={styles.eyebrowText}>{currentSlide.eyebrowText}</Text>
+            ) : null}
 
-          {/* Title */}
-          <Text style={styles.title}>{currentSlide.title}</Text>
-        </View>
-      </LinearGradient>
+            {/* Title */}
+            <Text style={styles.title}>{currentSlide.title}</Text>
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
 
       {/* Navigation */}
       <TouchableOpacity
@@ -256,9 +282,13 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
+  contentTouchArea: {
+    ...StyleSheet.absoluteFillObject,
+  },
   contentGradient: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
+    pointerEvents: 'none',
   },
   content: {
     padding: 25,

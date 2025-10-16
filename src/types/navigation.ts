@@ -1,6 +1,14 @@
 export type RootStackParamList = {
   Home: undefined;
-  Product: { url?: string };
+  Product: { 
+    title: string;
+    subtitle?: string;
+    eyebrowText?: string;
+    eyebrowImage?: { url: string };
+    mediaUrl: string;
+    mediaType: string;
+    targetUrl?: string;
+  };
 };
 
 declare global {
