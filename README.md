@@ -10,6 +10,31 @@ A React Native mobile application built with Expo, featuring dynamic content fro
 - **Modern Navigation**: Stack-based navigation with React Navigation
 - **Type-Safe**: Built with TypeScript for enhanced developer experience
 
+## 📸 Screenshots
+
+<div align="center">
+
+### Home Screen with Hero Slider
+<img src="./assets/screenshots/home-woolmark.png" width="300" alt="Home Screen - Woolmark Campaign" />
+<img src="./assets/screenshots/home-kohler.png" width="300" alt="Home Screen - Kohler Campaign" />
+
+*Hero slider showcasing different campaigns with video/image backgrounds and progress indicators*
+
+### Product Detail Screen
+<img src="./assets/screenshots/product-detail.png" width="300" alt="Product Detail Screen" />
+
+*Detailed product view with brand logo, title, subtitle, media section, and capabilities*
+
+</div>
+
+**Features Shown:**
+- ✅ Announcements carousel at the top with "THIS JUST IN..." section
+- ✅ Full-screen hero slider with brand campaigns
+- ✅ Progress bars indicating slider position
+- ✅ Product detail screen with dynamic content from Contentful
+- ✅ Responsive design with custom typography (Nimbus Sans)
+- ✅ Video playback support in hero sections
+
 ## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
