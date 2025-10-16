@@ -14,12 +14,12 @@ export default function App() {
     async function loadFonts() {
       try {
         await Font.loadAsync({
-          'Nimbus-Sans': require('./src/assets/fonts/NimbusSanL-Reg.otf'),
-          'Nimbus-Sans-Italic': require('./src/assets/fonts/NimbusSanL-RegIta.otf'),
-          'Nimbus-Sans-Bold': require('./src/assets/fonts/NimbusSanL-Bol.otf'),
-          'Nimbus-Sans-Bold-Italic': require('./src/assets/fonts/NimbusSanL-BolIta.otf'),
-          'Nimbus-Sans-Black': require('./src/assets/fonts/Nimbus Sans Becker PBla Regular.ttf'),
-          'Nimbus-Sans-UltraLight': require('./src/assets/fonts/nimbussansdot-ultrligh.otf'),
+          'Nimbus-Sans': require('./assets/fonts/NimbusSanL-Reg.otf'),
+          'Nimbus-Sans-Italic': require('./assets/fonts/NimbusSanL-RegIta.otf'),
+          'Nimbus-Sans-Bold': require('./assets/fonts/NimbusSanL-Bol.otf'),
+          'Nimbus-Sans-Bold-Italic': require('./assets/fonts/NimbusSanL-BolIta.otf'),
+          'Nimbus-Sans-Black': require('./assets/fonts/Nimbus Sans Becker PBla Regular.ttf'),
+          'Nimbus-Sans-UltraLight': require('./assets/fonts/nimbussansdot-ultrligh.otf'),
         });
         setFontsLoaded(true);
       } catch (error) {
