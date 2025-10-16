@@ -118,6 +118,7 @@ pmg-sancrisoft-app/
 │   ├── expo-video.js
 │   └── expo-linear-gradient.js
 ├── app.config.js           # Expo configuration (dynamic)
+├── eas.json                # EAS Build configuration
 ├── App.tsx                 # Root component with font loading
 ├── index.ts                # Entry point
 ├── jest.setup.js           # Jest configuration & global mocks
@@ -150,7 +151,116 @@ The app includes the following Nimbus Sans font families:
 - Shows loading spinner until fonts are ready
 - All fonts loaded before app renders
 
+## 📦 Building with EAS (Expo Application Services)
+
+### Prerequisites
+1. **Install EAS CLI globally**
+   ```bash
+   npm install -g eas-cli
+   ```
+
+2. **Login to your Expo account**
+   ```bash
+   eas login
+   ```
+
+3. **Configure your project**
+   ```bash
+   eas build:configure
+   ```
+
+### Build Profiles
+
+The project includes three build profiles in `eas.json`:
+
+#### **Development**
+For development builds with Expo Dev Client:
+```bash
+eas build --profile development --platform ios
+eas build --profile development --platform android
+```
+- Includes development tools
+- Can be installed on iOS simulator
+- Internal distribution
+
+#### **Preview**
+For testing builds (internal distribution):
+```bash
+eas build --profile preview --platform ios
+eas build --profile preview --platform android
+```
+- iOS: Internal distribution
+- Android: APK format (no Google Play)
+- Good for QA testing
+
+#### **Production**
+For App Store/Google Play submission:
+```bash
+eas build --profile production --platform ios
+eas build --profile production --platform android
+```
+- Optimized production builds
+- Environment variables from EAS secrets
+- Ready for store submission
+
+### Setting Environment Variables for EAS
+
+**Option 1: EAS Secrets (Recommended for production)**
+```bash
+eas secret:create --scope project --name ANNOUNCEMENTS_TOKEN --value "your-token"
+eas secret:create --scope project --name HERO_SLIDER_TOKEN --value "your-token"
+```
+
+**Option 2: In eas.json**
+Update the `production` profile with your tokens:
+```json
+{
+  "build": {
+    "production": {
+      "env": {
+        "ANNOUNCEMENTS_TOKEN": "your-actual-token",
+        "HERO_SLIDER_TOKEN": "your-actual-token"
+      }
+    }
+  }
+}
+```
+
+### Submitting to App Stores
+
+**iOS (App Store)**
+```bash
+eas submit --platform ios
+```
+
+**Android (Google Play)**
+```bash
+eas submit --platform android
+```
+
+### Build Status & Management
+
+Check build status:
+```bash
+eas build:list
+```
+
+View specific build:
+```bash
+eas build:view [BUILD_ID]
+```
+
+### Important Notes
+- **iOS builds** require an Apple Developer account ($99/year)
+- **Android builds** require a Google Play Developer account ($25 one-time)
+- Builds are stored on EAS servers for 30 days (free tier)
+- First build may take 20-30 minutes
+
 ## 🔧 Configuration
+
+### App Identifiers
+- **iOS Bundle ID**: `com.pmg.sancrisfotapp`
+- **Android Package**: `com.pmg.sancrisfotapp`
 
 ### Contentful API Endpoints
 
@@ -180,12 +290,22 @@ const token = Constants.expoConfig?.extra?.announcementsToken;
 
 ## 📱 Available Scripts
 
+### Development
 - `npm start` - Start the Expo development server
 - `npm run android` - Run on Android emulator
 - `npm run ios` - Run on iOS simulator
 - `npm run web` - Run in web browser
+
+### Testing
 - `npm test` - Run Jest tests
 - `npm run test:coverage` - Run tests with coverage report
+
+### Building with EAS
+- `eas build --platform ios` - Build for iOS
+- `eas build --platform android` - Build for Android
+- `eas build --platform all` - Build for both platforms
+- `eas build --profile preview` - Build preview/internal version
+- `eas build --profile production` - Build production version
 
 ## 🏗️ Technologies Used
 

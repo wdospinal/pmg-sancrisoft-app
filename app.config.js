@@ -24,13 +24,15 @@ export default {
       backgroundColor: "#ffffff"
     },
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
+      bundleIdentifier: "com.pmg.sancrisfotapp"
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff"
       },
+      package: "com.pmg.sancrisfotapp",
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false
     },
@@ -39,7 +41,10 @@ export default {
     },
     extra: {
       announcementsToken: process.env.ANNOUNCEMENTS_TOKEN,
-      heroSliderToken: process.env.HERO_SLIDER_TOKEN
+      heroSliderToken: process.env.HERO_SLIDER_TOKEN,
+      eas: {
+        projectId: "f0916b55-252e-4246-b119-f163de874fc9"
+      }
     }
   }
 };

@@ -1,0 +1,29 @@
+# EAS Ignore - Files to exclude from EAS builds
+# Similar to .gitignore but specific to EAS
+
+# Test files
+__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Mock files
+__mocks__/
+
+# Coverage reports
+coverage/
+
+# Documentation
+*.md
+!README.md
+
+# Development files
+.vscode/
+.idea/
+
+# Local environment files (use EAS secrets instead)
+.env
+.env.local
+.env*.local
+
